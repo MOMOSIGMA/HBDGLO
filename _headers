@@ -1,0 +1,4 @@
+/photos/*
+  Cache-Control: public, max-age=31536000, immutable
+/musique.mp3
+  Cache-Control: public, max-age=31536000, immutable

@@ -1,0 +1,8 @@
+PHOTOS (en .jpg, pas .heic), dans ce dossier "photos" :
+- plage1.jpg, plage2.jpg, plage3.jpg -> apparaissent dans la scène de la plage
+- 1.jpg à 6.jpg -> diaporama final
+Tu peux en mettre moins : les photos absentes sont ignorées.
+
+MUSIQUE :
+- Mets ta chanson en .mp3 à côté de index.html (pas dans ce dossier), nommée "musique.mp3".
+- Pour sauter l'intro de la chanson, change musiqueDebut dans index.html (en secondes).
