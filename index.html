@@ -167,6 +167,7 @@ p{margin:0;max-width:26rem}
 .tier.bottom::after{content:"";position:absolute;left:10%;right:10%;bottom:1.1rem;height:.35rem;border-radius:999px;background:repeating-linear-gradient(90deg,#F4C45A 0 .5rem,transparent .5rem 1rem)}
 .plate{width:17rem;height:.7rem;margin:-.1rem auto 0;border-radius:50%;background:var(--line)}
 .status{color:var(--muted);min-height:1.6rem;font-size:.95rem}
+.micopt{font-size:.85rem;padding:.5rem 1.1rem;opacity:.75}
 
 /* célébration */
 .big-bday{font-size:clamp(2.4rem,11vw,3.4rem);color:var(--gold);margin-top:.5rem}
@@ -254,7 +255,7 @@ const CONFIG = {
   },
   finale: {
     titre: "Fais un vœu…",
-    consigne: "…puis souffle sur ton téléphone pour éteindre les bougies."
+    consigne: "…puis touche chaque bougie pour l'éteindre."
   },
   // Ta musique : un fichier "musique.mp3" à côté de index.html.
   musique: "musique.mp3",
@@ -341,7 +342,7 @@ const Music = {
     this.ft=setInterval(()=>{ const d=target-a.volume; if(Math.abs(d)<.02){ a.volume=target; clearInterval(this.ft); return; } a.volume=Math.max(0,Math.min(1,a.volume+Math.sign(d)*.02)); }, 90);
   },
   setOn(v){ this.on=v; if(!this.el) return; if(v) this.el.play().catch(()=>{}); else this.el.pause(); },
-  duck(d){ if(!this.el||!this.on) return; if(d) this.el.pause(); else this.el.play().catch(()=>{}); },
+  duck(d){ if(!this.el||!this.on) return; this.fade(d ? .06 : (CONFIG.volume==null?.32:CONFIG.volume)); },
   chime(){
     const c=this.sfx; if(!c||!this.on) return;
     const t=c.currentTime;
@@ -559,14 +560,16 @@ function finale(){
     candles.push(c); row.append(c);
   }
   cake.append(row,$("div","tier top"),$("div","tier bottom"),$("div","plate"));
-  const status=$("p","status","Tu peux aussi toucher les bougies une par une.");
-  const mic=$("button","btn","Souffler avec le micro 🌬️");
-  mic.onclick=()=>startMic(status, mic, ()=>{ const lit=candles.find(c=>!c.classList.contains("out")); if(lit) blowOut(lit); });
+  const status=$("p","status","");
+  // Le micro reste possible, mais discret : il demande une autorisation,
+  // et cette coupure casse l'emotion si elle arrive sans prevenir.
+  const mic=$("button","btn ghost micopt","Ou souffler pour de vrai 🌬️");
+  mic.onclick=()=>{ startMic(status, mic, ()=>{ const lit=candles.find(c=>!c.classList.contains("out")); if(lit) blowOut(lit); }); };
   stage.append(cake,mic,status);
   function blowOut(c){
     if(c.classList.contains("out")) return;
     c.classList.add("out"); buzz(20); left--;
-    if(left===0){ stopMic(); status.textContent=""; setTimeout(celebrate, 900); }
+    if(left===0){ stopMic(); status.textContent=""; mic.remove(); setTimeout(celebrate, 900); }
   }
 }
 
@@ -575,7 +578,7 @@ function startMic(status, btn, onBlow){
   const C=window.AudioContext||window.webkitAudioContext; const ctx=new C();
   if(ctx.resume) ctx.resume();
   Music.duck(true);
-  status.textContent="Autorise le micro quand ton téléphone te le demande.";
+  status.textContent="Ton téléphone va demander le micro — accepte, puis souffle 💨";
   navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}}).then(stream=>{
     if(ctx.resume) ctx.resume();
     const an=ctx.createAnalyser(); an.fftSize=1024; ctx.createMediaStreamSource(stream).connect(an);
